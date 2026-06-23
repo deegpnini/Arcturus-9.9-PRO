@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 ARCTURUS 9.9 PRO — Validador Científico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            padding: 30px 20px;
+            background: #111;
+            border-radius: 20px;
+            border: 2px solid #00ff88;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            color: #00ff88;
+            text-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+        .header .version {
+            color: #ff5500;
+            font-size: 0.5em;
+            vertical-align: super;
+        }
+        .header .subtitle {
+            color: #aaa;
+            margin-top: 10px;
+        }
+        .header .badge {
+            display: inline-block;
+            background: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            padding: 5px 20px;
+            border-radius: 20px;
+            border: 1px solid #00ff88;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        .card {
+            background: #111;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid #222;
+        }
+        .card h2 {
+            color: #00ff88;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #222;
+            padding-bottom: 10px;
+        }
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            background: #000;
+            border: 2px solid #222;
+            border-radius: 10px;
+            padding: 15px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            flex: 1;
+            min-width: 150px;
+        }
+        .btn-primary {
+            background: #ff5500;
+            color: #fff;
+        }
+        .btn-primary:hover {
+            background: #ff7700;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.05);
+            color: #aaa;
+            border: 1px solid #333;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        .examples {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .btn-example {
+            padding: 8px 16px;
+            background: rgba(0, 170, 255, 0.05);
+            color: #00aaff;
+            border: 1px solid rgba(0, 170, 255, 0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .btn-example:hover {
+            background: rgba(0, 170, 255, 0.15);
+            border-color: #00aaff;
+        }
+        .btn-example.good {
+            border-color: rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+        }
+        .btn-example.bad {
+            border-color: rgba(255, 68, 68, 0.3);
+            color: #ff4444;
+        }
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 30px;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.05);
+            border-top: 4px solid #00ff88;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .results {
+            display: none;
+        }
+        .score-display {
+            text-align: center;
+            padding: 20px 0;
+        }
+        .score-circle {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            background: #1a1a1a;
+        }
+        .score-circle-inner {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .score-value {
+            font-size: 3.5em;
+            font-weight: bold;
+            line-height: 1;
+        }
+        .score-max {
+            font-size: 0.8em;
+            color: #666;
+        }
+        .score-category {
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 10px 0 5px;
+        }
+        .score-description {
+            color: #aaa;
+            font-size: 0.95em;
+            max-width: 500px;
+            margin: 5px auto;
+        }
+        .flags-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        @media (max-width: 700px) {
+            .flags-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .flag-section {
+            padding: 15px;
+            border-radius: 10px;
+        }
+        .flag-section.red {
+            background: rgba(255, 68, 68, 0.03);
+            border-left: 4px solid #ff4444;
+        }
+        .flag-section.green {
+            background: rgba(0, 255, 136, 0.03);
+            border-left: 4px solid #00ff88;
+        }
+        .flag-section h3 {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+        .flag-section.red h3 { color: #ff4444; }
+        .flag-section.green h3 { color: #00ff88; }
+        .flag-item {
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 6px;
+            font-size: 0.9em;
+            border-left: 3px solid;
+        }
+        .flag-item.red-item { border-left-color: #ff4444; }
+        .flag-item.green-item { border-left-color: #00ff88; }
+        .flag-desc {
+            color: #666;
+            font-size: 0.85em;
+            display: block;
+        }
+        .recommendations {
+            background: rgba(255, 170, 0, 0.03);
+            border: 1px solid rgba(255, 170, 0, 0.15);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .recommendations h3 {
+            color: #ffaa00;
+            margin-bottom: 10px;
+        }
+        .rec-item {
+            padding: 8px 12px;
+            margin-bottom: 6px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+        .metadata-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+        }
+        .metadata-item strong {
+            color: #666;
+            display: block;
+            font-size: 0.75em;
+            text-transform: uppercase;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid #222;
+            color: #666;
+            font-size: 0.8em;
+        }
+        .footer .highlight {
+            color: #ff5500;
+        }
+        .no-flags {
+            color: #666;
+            font-style: italic;
+            font-size: 0.9em;
+        }
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.8em; }
+            .btn-group { flex-direction: column; }
+            .score-value { font-size: 2.8em; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🧠 ARCTURUS <span class="version">9.9</span></h1>
+            <p class="subtitle">⚡ Scientific Integrity Validator</p>
+            <div class="badge">● SISTEMA OPERACIONAL</div>
+        </header>
+
+        <div class="card">
+            <h2>📄 Input Data Stream</h2>
+            <p style="color:#666; margin-bottom:15px; font-size:0.9em;">
+                Cole o abstract ou metodologia de um estudo científico para análise.
+            </p>
+            <textarea id="paperInput" placeholder="Paste scientific abstract or methodology section here..."></textarea>
+            <div class="btn-group">
+                <button class="btn btn-primary" id="analyzeBtn" onclick="analyzePaper()">▶ ANALISAR AGORA</button>
+                <button class="btn btn-secondary" onclick="clearText()">✕ LIMPAR</button>
+            </div>
+            <div class="examples">
+                <button class="btn-example good" onclick="loadExample('good')">🟢 Estudo Sólido</button>
+                <button class="btn-example" onclick="loadExample('medium')">🟡 Estudo Médio</button>
+                <button class="btn-example bad" onclick="loadExample('bad')">🔴 Estudo Problemático</button>
+            </div>
+        </div>
+
+        <div class="card loading" id="loading">
+            <div class="spinner"></div>
+            <p style="color:#666;">SCANNING METHODOLOGICAL INTEGRITY...</p>
+        </div>
+
+        <div class="results" id="resultsCard">
+            <div class="card" id="scoreCard">
+                <div class="score-display">
+                    <div class="score-category" id="scoreCategory">EXCELÊNCIA CIENTÍFICA ⭐</div>
+                    <div class="score-circle" id="scoreCircle">
+                        <div class="score-circle-inner">
+                            <span class="score-value" id="scoreValue">9.9</span>
+                            <span class="score-max">/ 9.9</span>
+                        </div>
+                    </div>
+                    <div class="score-description" id="scoreDescription">Metodologia robusta e transparente.</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="flags-grid">
+                    <div class="flag-section red">
+                        <h3>🚨 RED FLAGS</h3>
+                        <div id="redFlagsList"><span class="no-flags">Nenhuma red flag detectada ✅</span></div>
+                    </div>
+                    <div class="flag-section green">
+                        <h3>✅ GREEN FLAGS</h3>
+                        <div id="greenFlagsList"><span class="no-flags">Nenhuma green flag detectada</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="recommendations">
+                    <h3>💡 RECOMENDAÇÕES</h3>
+                    <div id="recommendationsList">✅ Estudo bem estruturado. Continue assim.</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2 style="font-size:0.95em;">⚙️ DETALHES TÉCNICOS</h2>
+                <div class="metadata-grid" id="metadataGrid">
+                    <div class="metadata-item"><strong>Versão</strong><span id="versionDetail">9.9 D7D</span></div>
+                    <div class="metadata-item"><strong>Frequência</strong><span id="frequencyDetail">439 Hz</span></div>
+                    <div class="metadata-item"><strong>Criador</strong><span id="creatorDetail">Comandante Hebron</span></div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            <p>⚡ NEXUS VEREDICTUM ⚡</p>
+            <p style="margin-top:5px;">"Tecnologia com alma, dados com propósito, código com coração."</p>
+            <p style="margin-top:5px;">🧠 ARCTURUS 9.9 PRO · Creator: <span class="highlight">Comandante Hebron</span> · 439 Hz</p>
+        </footer>
+    </div>
+
+    <script>
+        const paperInput = document.getElementById('paperInput');
+        const loadingDiv = document.getElementById('loading');
+        const resultsCard = document.getElementById('resultsCard');
+        const scoreCircle = document.getElementById('scoreCircle');
+        const scoreValue = document.getElementById('scoreValue');
+        const scoreCategory = document.getElementById('scoreCategory');
+        const scoreDescription = document.getElementById('scoreDescription');
+        const redFlagsList = document.getElementById('redFlagsList');
+        const greenFlagsList = document.getElementById('greenFlagsList');
+        const recommendationsList = document.getElementById('recommendationsList');
+        const versionDetail = document.getElementById('versionDetail');
+        const frequencyDetail = document.getElementById('frequencyDetail');
+        const creatorDetail = document.getElementById('creatorDetail');
+
+        async function analyzePaper() {
+            const text = paperInput.value.trim();
+            if (!text) { alert('⚠️ Cole um abstract científico para análise.'); return; }
+            if (text.length < 20) { alert('⚠️ Texto muito curto (mínimo 20 caracteres).'); return; }
+
+            loadingDiv.style.display = 'block';
+            resultsCard.style.display = 'none';
+            document.getElementById('analyzeBtn').disabled = true;
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: text })
+                });
+                if (!response.ok) throw new Error('Erro na análise');
+                const result = await response.json();
+                displayResults(result);
+            } catch (error) {
+                alert('❌ ' + error.message);
+            } finally {
+                loadingDiv.style.display = 'none';
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            const score = data.arcturus_score;
+            const v = data.veredictum;
+
+            scoreValue.textContent = score.toFixed(1);
+            scoreCategory.textContent = v.categoria;
+            scoreCategory.style.color = v.cor;
+            scoreDescription.textContent = v.descricao;
+            const pct = (score / 10) * 100;
+            scoreCircle.style.background = `conic-gradient(${v.cor} 0% ${pct}%, #1a1a1a ${pct}% 100%)`;
+            scoreCircle.style.boxShadow = `0 0 40px ${v.cor}33`;
+
+            // Red Flags
+            const red = data.red_flags || {};
+            redFlagsList.innerHTML = Object.keys(red).length === 0 ?
+                '<span class="no-flags">Nenhuma red flag detectada ✅</span>' :
+                Object.values(red).map(f => `<div class="flag-item red-item"><strong>${f.label}</strong><span class="flag-desc">${f.description}</span></div>`).join('');
+
+            // Green Flags
+            const green = data.green_flags || {};
+            greenFlagsList.innerHTML = Object.keys(green).length === 0 ?
+                '<span class="no-flags">Nenhuma green flag detectada</span>' :
+                Object.values(green).map(f => `<div class="flag-item green-item"><strong>${f.label}</strong><span class="flag-desc">${f.description}</span></div>`).join('');
+
+            // Recommendations
+            const recs = data.recommendations || [];
+            recommendationsList.innerHTML = recs.length === 0 ?
+                '✅ Estudo bem estruturado. Continue assim.' :
+                recs.map(r => `<div class="rec-item">${r}</div>`).join('');
+
+            // Metadata
+            const meta = data.metadata || {};
+            versionDetail.textContent = meta.version || '9.9 D7D';
+            frequencyDetail.textContent = meta.frequency || '439 Hz';
+            creatorDetail.textContent = meta.creator || 'Comandante Hebron';
+
+            resultsCard.style.display = 'block';
+            resultsCard.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function loadExample(type) {
+            try {
+                const response = await fetch('/api/examples');
+                const examples = await response.json();
+                paperInput.value = examples[type] || examples.good;
+                paperInput.focus();
+            } catch {
+                const fallback = {
+                    good: 'Randomized controlled trial with 847 patients. Pre-registered study. Double-blind design. Results: p<0.001. Funded by NIH.',
+                    medium: 'Observational study with 5,432 participants. Association found (p=0.006). Government funded.',
+                    bad: 'Revolutionary breakthrough tested on 18 volunteers. Cure rate 95% (p=0.048). Funded by SupplementCorp.'
+                };
+                paperInput.value = fallback[type] || fallback.good;
+            }
+        }
+
+        function clearText() {
+            paperInput.value = '';
+            resultsCard.style.display = 'none';
+            paperInput.focus();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); analyzePaper(); }
+            if (e.key === 'Escape') clearText();
+        });
+
+        console.log('🧠 ARCTURUS 9.9 PRO');
+        console.log('⚡ Frequency: 439 Hz');
+        console.log('👤 Creator: Comandante Hebron');
+    </script>
+</body>
+</html>
